@@ -1,23 +1,24 @@
-import { io, Socket } from 'socket.io-client'
+import { io, Socket } from "socket.io-client";
 
-const SERVER_URL = 'http://34.230.64.9:3001'
+const SERVER_URL =
+  "https://asset-arctic-distances-provisions.trycloudflare.com/";
 
-let socket: Socket | null = null
+let socket: Socket | null = null;
 
 export function getSocket(): Socket {
   if (!socket) {
-    socket = io(SERVER_URL, { autoConnect: false })
+    socket = io(SERVER_URL, { autoConnect: false });
   }
-  return socket
+  return socket;
 }
 
 export function connectSocket(): Socket {
-  const s = getSocket()
-  if (!s.connected) s.connect()
-  return s
+  const s = getSocket();
+  if (!s.connected) s.connect();
+  return s;
 }
 
 export function disconnectSocket(): void {
-  socket?.disconnect()
-  socket = null
+  socket?.disconnect();
+  socket = null;
 }
