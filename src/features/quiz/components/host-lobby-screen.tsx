@@ -1,18 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Check, Copy, Loader2, Play, Users } from "lucide-react"
-
+import { Check, Copy, Loader2, Play, Users, Wifi } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { useGameStore } from "@/context/game"
 
 export function HostLobbyScreen() {
@@ -29,106 +21,134 @@ export function HostLobbyScreen() {
     }
 
     return (
-        <Card className="relative overflow-hidden border-border/70 shadow-2xl">
-            <div className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-primary/15 blur-3xl" />
+        <Card className="overflow-hidden border-border/60 shadow-xl">
+            <CardHeader className="px-6 pt-6 pb-0">
+                <div className="flex items-center justify-between">
+                    <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
+                        Sala do Host
+                    </Badge>
+                    {!isCreating && (
+                        <div className="flex items-center gap-1.5 text-xs text-emerald-600">
+                            <Wifi className="size-3.5" />
+                            <span className="font-medium">Ao vivo</span>
+                        </div>
+                    )}
+                </div>
 
-            <CardHeader className="relative px-4 pt-4 sm:px-6 sm:pt-6">
-                <Badge variant="secondary" className="w-fit rounded-full px-3 py-1 text-xs">
-                    Sala do Host
-                </Badge>
-
-                <CardTitle className="mt-2 font-heading text-2xl sm:text-3xl">
-                    {isCreating ? "Criando sala..." : "Aguardando jogadores"}
-                </CardTitle>
-
-                <CardDescription className="text-sm sm:text-base">
-                    {isCreating
-                        ? "Conectando ao servidor..."
-                        : "Compartilhe o código abaixo com os jogadores."}
-                </CardDescription>
+                <div className="mt-3 space-y-1">
+                    <h2 className="font-heading text-2xl font-bold text-foreground">
+                        {isCreating ? "Criando sala..." : "Aguardando jogadores"}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        {isCreating
+                            ? "Conectando ao servidor, aguarde um momento."
+                            : "Compartilhe o código abaixo com os participantes."}
+                    </p>
+                </div>
             </CardHeader>
 
-            <CardContent className="space-y-4 px-4 sm:px-6">
+            <CardContent className="space-y-4 px-6 py-6">
                 {isCreating ? (
-                    <div className="flex items-center justify-center py-8">
+                    <div className="flex flex-col items-center justify-center gap-3 py-10">
                         <Loader2 className="size-8 animate-spin text-primary" />
+                        <p className="text-sm text-muted-foreground">Conectando ao servidor...</p>
                     </div>
                 ) : (
                     <>
-                        <div className="flex items-center gap-2 rounded-2xl border-2 border-primary/30 bg-primary/5 px-4 py-4">
-                            <div className="flex-1 text-center">
-                                <p className="text-xs text-muted-foreground">Código da sala</p>
-                                <p className="mt-1 font-heading text-4xl font-bold tracking-widest text-primary sm:text-5xl">
+                        {/* Room code */}
+                        <div className="overflow-hidden rounded-2xl border-2 border-primary/20 bg-primary/5">
+                            <div className="px-6 py-5 text-center">
+                                <p className="mb-1.5 text-xs font-medium uppercase tracking-widest text-primary/70">
+                                    Código da sala
+                                </p>
+                                <p className="font-heading text-5xl font-bold tracking-[0.2em] text-primary sm:text-6xl">
                                     {roomCode}
                                 </p>
                             </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={copyCode}
-                                aria-label="Copiar código"
-                                className="shrink-0"
-                            >
-                                {copied ? (
-                                    <Check className="size-4 text-emerald-600" />
-                                ) : (
-                                    <Copy className="size-4" />
-                                )}
-                            </Button>
+                            <div className="border-t border-primary/15 bg-primary/8 px-4 py-2.5">
+                                <button
+                                    onClick={copyCode}
+                                    className="flex w-full items-center justify-center gap-2 text-sm font-medium text-primary/80 transition-colors hover:text-primary"
+                                >
+                                    {copied ? (
+                                        <>
+                                            <Check className="size-3.5" />
+                                            Copiado!
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy className="size-3.5" />
+                                            Copiar código
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
-                            <div className="mb-3 flex items-center gap-2">
-                                <Users className="size-4 text-muted-foreground" />
-                                <p className="text-sm font-medium">
-                                    {players.length === 0
-                                        ? "Nenhum jogador ainda"
-                                        : `${players.length} jogador${players.length > 1 ? "es" : ""}`}
-                                </p>
+                        {/* Player list */}
+                        <div className="rounded-2xl border border-border/60 bg-muted/20">
+                            <div className="flex items-center justify-between px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                    <Users className="size-4 text-muted-foreground" />
+                                    <span className="text-sm font-medium text-foreground">
+                                        Jogadores
+                                    </span>
+                                </div>
+                                <Badge variant="outline" className="rounded-full px-2.5 text-xs">
+                                    {players.length}
+                                </Badge>
                             </div>
 
-                            {players.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">
-                                    Os jogadores aparecerão aqui conforme entrarem na sala.
-                                </p>
-                            ) : (
-                                <ul className="space-y-1.5">
-                                    {players.map((p) => (
-                                        <li
-                                            key={p.id}
-                                            className="flex items-center gap-2 rounded-lg bg-background/60 px-3 py-2 text-sm"
-                                        >
-                                            <span className="size-2 rounded-full bg-emerald-500" />
-                                            {p.nickname}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                            <div className="border-t border-border/40 px-4 py-3">
+                                {players.length === 0 ? (
+                                    <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
+                                        <span className="size-1.5 animate-pulse rounded-full bg-muted-foreground/50" />
+                                        Aguardando conexões...
+                                    </div>
+                                ) : (
+                                    <ul className="space-y-1.5">
+                                        {players.map((p, i) => (
+                                            <li
+                                                key={p.id}
+                                                className="flex items-center gap-3 rounded-xl bg-background/70 px-3 py-2.5 text-sm animate-slide-in-left"
+                                                style={{ animationDelay: `${i * 50}ms` }}
+                                            >
+                                                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">
+                                                    {p.nickname[0]?.toUpperCase()}
+                                                </span>
+                                                <span className="flex-1 font-medium text-foreground">{p.nickname}</span>
+                                                <span className="size-1.5 rounded-full bg-emerald-500" />
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
                         </div>
-                    </>
-                )}
 
-                {error && (
-                    <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-700">
-                        {error}
-                    </div>
+                        {error && (
+                            <div className="flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                                <span className="size-1.5 shrink-0 rounded-full bg-rose-500" />
+                                {error}
+                            </div>
+                        )}
+                    </>
                 )}
             </CardContent>
 
             {!isCreating && (
-                <CardFooter className="px-4 pb-4 sm:px-6 sm:pb-6">
+                <CardFooter className="px-6 pb-6 pt-0">
                     <Button
                         size="lg"
-                        className="w-full"
+                        className="w-full gap-2"
                         disabled={players.length === 0}
                         onClick={startGame}
                     >
                         <Play className="size-4" />
                         Iniciar jogo
                         {players.length > 0 && (
-                            <Badge variant="secondary" className="ml-1 rounded-full px-2 py-0 text-xs">
+                            <span className="ml-1 rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs font-bold">
                                 {players.length}
-                            </Badge>
+                            </span>
                         )}
                     </Button>
                 </CardFooter>

@@ -2,17 +2,9 @@
 
 import { useState } from "react"
 import { ArrowLeft, Loader2, LogIn } from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { useGameStore } from "@/context/game"
 
 export function PlayerJoinScreen() {
@@ -29,30 +21,23 @@ export function PlayerJoinScreen() {
     }
 
     return (
-        <Card className="relative overflow-hidden border-border/70 shadow-2xl">
-            <div className="pointer-events-none absolute -bottom-20 -left-20 size-56 rounded-full bg-amber-300/20 blur-3xl" />
-
-            <CardHeader className="relative px-4 pt-4 sm:px-6 sm:pt-6">
-                <Badge variant="secondary" className="w-fit rounded-full px-3 py-1 text-xs">
+        <Card className="overflow-hidden border-border/60 shadow-xl">
+            <CardHeader className="px-6 pt-6 pb-0">
+                <Badge variant="secondary" className="w-fit rounded-full px-3 py-1 text-xs font-medium">
                     Entrar como Jogador
                 </Badge>
-
-                <CardTitle className="mt-2 font-heading text-2xl sm:text-3xl">
-                    Entrar na sala
-                </CardTitle>
-
-                <CardDescription className="text-sm sm:text-base">
-                    Informe o código de 6 dígitos e escolha seu apelido.
-                </CardDescription>
+                <div className="mt-3 space-y-1">
+                    <h2 className="font-heading text-2xl font-bold text-foreground">Entrar na sala</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Informe o código de 6 dígitos e escolha seu apelido.
+                    </p>
+                </div>
             </CardHeader>
 
             <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-4 px-4 sm:px-6">
+                <CardContent className="space-y-5 px-6 py-6">
                     <div className="space-y-2">
-                        <label
-                            htmlFor="room-code"
-                            className="text-sm font-medium text-foreground"
-                        >
+                        <label htmlFor="room-code" className="text-sm font-medium text-foreground">
                             Código da sala
                         </label>
                         <input
@@ -64,43 +49,45 @@ export function PlayerJoinScreen() {
                             value={code}
                             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                             disabled={isJoining}
-                            className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-center font-heading text-2xl tracking-widest placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40 disabled:opacity-50"
+                            className="w-full rounded-xl border border-border bg-card px-4 py-3.5 text-center font-heading text-3xl font-bold tracking-[0.4em] shadow-sm outline-none placeholder:text-muted-foreground/30 focus:border-primary focus:ring-3 focus:ring-primary/20 disabled:opacity-60"
                         />
+                        <p className="text-xs text-muted-foreground">
+                            Peça o código ao criador da sala.
+                        </p>
                     </div>
 
                     <div className="space-y-2">
-                        <label
-                            htmlFor="nickname"
-                            className="text-sm font-medium text-foreground"
-                        >
+                        <label htmlFor="nickname" className="text-sm font-medium text-foreground">
                             Apelido
                         </label>
                         <input
                             id="nickname"
                             type="text"
                             maxLength={20}
-                            placeholder="Seu nome no jogo"
+                            placeholder="Como quer ser chamado?"
                             value={nickname}
                             onChange={(e) => setNickname(e.target.value)}
                             disabled={isJoining}
-                            className="w-full rounded-xl border border-border bg-background px-4 py-2.5 placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40 disabled:opacity-50"
+                            className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm outline-none placeholder:text-muted-foreground/50 focus:border-primary focus:ring-3 focus:ring-primary/20 disabled:opacity-60"
                         />
                     </div>
 
                     {error && (
-                        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-700">
+                        <div className="flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                            <span className="size-1.5 shrink-0 rounded-full bg-rose-500" />
                             {error}
                         </div>
                     )}
                 </CardContent>
 
-                <CardFooter className="flex gap-2 px-4 pb-4 sm:px-6 sm:pb-6">
+                <CardFooter className="flex gap-3 px-6 pb-6 pt-0">
                     <Button
                         type="button"
                         variant="outline"
                         size="lg"
                         onClick={reset}
                         disabled={isJoining}
+                        className="shrink-0"
                     >
                         <ArrowLeft className="size-4" />
                         Voltar
@@ -110,18 +97,19 @@ export function PlayerJoinScreen() {
                         type="submit"
                         size="lg"
                         className="flex-1"
-                        disabled={
-                            isJoining ||
-                            code.trim().length !== 6 ||
-                            nickname.trim().length === 0
-                        }
+                        disabled={isJoining || code.trim().length !== 6 || nickname.trim().length === 0}
                     >
                         {isJoining ? (
-                            <Loader2 className="size-4 animate-spin" />
+                            <>
+                                <Loader2 className="size-4 animate-spin" />
+                                Entrando...
+                            </>
                         ) : (
-                            <LogIn className="size-4" />
+                            <>
+                                <LogIn className="size-4" />
+                                Entrar na sala
+                            </>
                         )}
-                        {isJoining ? "Entrando..." : "Entrar"}
                     </Button>
                 </CardFooter>
             </form>

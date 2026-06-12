@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import { librasQuestions } from '@/data/libras-questions'
 import { shuffleArray } from '@/utils/shuffle-array'
 import { connectSocket, disconnectSocket } from '@/lib/socket'
+import { saveSession, clearSession } from '@/lib/session'
 import type {
   LeaderboardEntry,
   PlayerInfo,
@@ -29,6 +30,7 @@ interface GameState {
   role: Role | null
   roomCode: string | null
   playerId: string | null
+  nickname: string | null
   players: PlayerInfo[]
   currentQuestion: PublicQuestion | null
   questionResults: QuestionResults | null
@@ -59,16 +61,17 @@ function buildLibrasQuestions(): Question[] {
 
 const initialState = {
   phase: 'home' as GamePhase,
-  role: null,
-  roomCode: null,
-  playerId: null,
+  role: null as Role | null,
+  roomCode: null as string | null,
+  playerId: null as string | null,
+  nickname: null as string | null,
   players: [] as PlayerInfo[],
-  currentQuestion: null,
-  questionResults: null,
-  podium: null,
-  selectedOptionIndex: null,
+  currentQuestion: null as PublicQuestion | null,
+  questionResults: null as QuestionResults | null,
+  podium: null as LeaderboardEntry[] | null,
+  selectedOptionIndex: null as number | null,
   answerSubmitted: false,
-  error: null,
+  error: null as string | null,
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -126,7 +129,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   joinRoom: (code, nickname) => {
-    set({ phase: 'player_joining', error: null })
+    // role must be set here too — joinRoom may be called directly on reload
+    set({ phase: 'player_joining', role: 'player', error: null, nickname })
     const socket = connectSocket()
 
     socket.on('room:players', (players: PlayerInfo[]) => {
@@ -218,3 +222,19 @@ export const useGameStore = create<GameState>((set, get) => ({
     set(initialState)
   },
 }))
+
+// Reactive session persistence: save/clear localStorage whenever phase changes.
+// This decouples persistence from socket callbacks — more reliable.
+if (typeof window !== 'undefined') {
+  useGameStore.subscribe((state, prev) => {
+    if (state.phase === prev.phase) return
+
+    if (state.phase === 'player_lobby' && state.roomCode && state.nickname) {
+      saveSession({ roomCode: state.roomCode, nickname: state.nickname })
+    }
+
+    if (state.phase === 'home' || state.phase === 'question' || state.phase === 'game_over') {
+      clearSession()
+    }
+  })
+}
